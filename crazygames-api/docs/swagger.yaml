@@ -1,0 +1,937 @@
+definitions:
+  entities.Ads:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        $ref: '#/definitions/gorm.DeletedAt'
+      game:
+        allOf:
+        - $ref: '#/definitions/entities.Game'
+        description: Relations
+      game_id:
+        type: integer
+      id:
+        type: integer
+      image_url:
+        type: string
+      position:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  entities.Category:
+    properties:
+      categoryName:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      game:
+        items:
+          $ref: '#/definitions/entities.Game'
+        type: array
+      icon:
+        type: string
+      id:
+        type: integer
+      isMenu:
+        type: boolean
+      path:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entities.Game:
+    properties:
+      category:
+        items:
+          $ref: '#/definitions/entities.Category'
+        type: array
+      createdAt:
+        type: string
+      description:
+        type: string
+      developer:
+        type: string
+      gameTitle:
+        type: string
+      gameURL:
+        type: string
+      hoverVideoUrl:
+        type: string
+      id:
+        type: integer
+      playCount:
+        type: integer
+      rating:
+        type: number
+      releaseDate:
+        type: string
+      technology:
+        type: string
+      thumbnailURL:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entities.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      role:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  request.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  request.UserEmailRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.UserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  request.UserResetPasswordRequest:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+    required:
+    - new_password
+    type: object
+  request.UserUpdateRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - player
+        - admin
+        type: string
+      username:
+        type: string
+    type: object
+  response.AdsResponse:
+    properties:
+      ads:
+        items:
+          $ref: '#/definitions/entities.Ads'
+        type: array
+      pageNumber:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.GamesResponse:
+    properties:
+      games:
+        items:
+          $ref: '#/definitions/entities.Game'
+        type: array
+      pageNumber:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /ads:
+    get:
+      consumes:
+      - application/json
+      description: Get all advertisements
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_number
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Advertisements retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.AdsResponse'
+              type: object
+      tags:
+      - Advertisements
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Upload Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: Position
+        in: formData
+        name: position
+        required: true
+        type: integer
+      - description: Game ID
+        in: formData
+        name: game_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Ads'
+      tags:
+      - Advertisements
+  /ads/{id}:
+    delete:
+      consumes:
+      - multipart/form-data
+      description: Delete advertisement by id
+      parameters:
+      - description: Ads ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: {\"message\": \"success\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - Advertisements
+    get:
+      consumes:
+      - application/json
+      description: Get advertisement by id
+      parameters:
+      - description: Ads ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Ads'
+      tags:
+      - Advertisements
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update advertisement by id
+      parameters:
+      - description: Ads ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Upload Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: Position
+        in: formData
+        name: position
+        required: true
+        type: integer
+      - description: Game ID
+        in: formData
+        name: game_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Ads'
+      tags:
+      - Advertisements
+  /auth/check-email:
+    post:
+      consumes:
+      - application/json
+      description: Check if email exists and respond accordingly
+      parameters:
+      - description: Email request
+        in: body
+        name: UserEmailRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: {\"message\": \"email_exists\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - Authentication
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in an existing user
+      parameters:
+      - description: Login request
+        in: body
+        name: LoginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: {\"message\": \"Login successful\", \"token\": \"your-jwt-token\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Register request
+        in: body
+        name: RegisterRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.User'
+      tags:
+      - Auth
+  /category:
+    get:
+      consumes:
+      - application/json
+      description: Get all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/entities.Category'
+              type: array
+            type: array
+      tags:
+      - Categories
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new category
+      parameters:
+      - description: Category Name
+        in: formData
+        name: category_name
+        required: true
+        type: string
+      - description: Upload Icon
+        in: formData
+        name: icon
+        required: true
+        type: file
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: path
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: is_menu
+        in: formData
+        name: is_menu
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Category'
+      tags:
+      - Categories
+  /category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: {\"message\": \"Category deleted successfully\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - Categories
+    get:
+      consumes:
+      - application/json
+      description: Get category by id
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Category'
+      tags:
+      - Categories
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category Name
+        in: formData
+        name: category_name
+        type: string
+      - description: Upload Icon
+        in: formData
+        name: icon
+        required: true
+        type: file
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: path
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: is_menu
+        in: formData
+        name: is_menu
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Category'
+      tags:
+      - Categories
+  /category/menu:
+    get:
+      consumes:
+      - application/json
+      description: Get menu
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/entities.Category'
+              type: array
+            type: array
+      tags:
+      - Categories
+  /game:
+    get:
+      consumes:
+      - application/json
+      description: Get all games
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_number
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.GamesResponse'
+              type: object
+      tags:
+      - Games
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new game
+      parameters:
+      - description: game_title
+        in: formData
+        name: game_title
+        required: true
+        type: string
+      - description: description
+        in: formData
+        name: description
+        type: string
+      - description: developer
+        in: formData
+        name: developer
+        type: string
+      - description: category_id
+        in: formData
+        name: category_id
+        type: string
+      - description: release_date
+        in: formData
+        name: release_date
+        type: string
+      - description: thumbnail
+        in: formData
+        name: thumbnail
+        type: file
+      - description: technology
+        in: formData
+        name: technology
+        type: string
+      - description: rating
+        in: formData
+        name: rating
+        type: number
+      - description: hover_video
+        in: formData
+        name: hover_video
+        type: file
+      - description: game_url
+        in: formData
+        name: game_url
+        type: string
+      - description: play_count
+        in: formData
+        name: play_count
+        type: number
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Game'
+      tags:
+      - Games
+  /game/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a game
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Game'
+      tags:
+      - Games
+    get:
+      consumes:
+      - application/json
+      description: List games by category
+      parameters:
+      - description: Category ID
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/entities.Game'
+              type: array
+            type: array
+      tags:
+      - Games
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update a game
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: game_title
+        in: formData
+        name: game_title
+        required: true
+        type: string
+      - description: description
+        in: formData
+        name: description
+        type: string
+      - description: developer
+        in: formData
+        name: developer
+        type: string
+      - description: category_id
+        in: formData
+        name: category_id
+        type: string
+      - description: release_date
+        in: formData
+        name: release_date
+        type: string
+      - description: thumbnail
+        in: formData
+        name: thumbnail
+        type: file
+      - description: technology
+        in: formData
+        name: technology
+        type: string
+      - description: rating
+        in: formData
+        name: rating
+        type: number
+      - description: hover_video
+        in: formData
+        name: hover_video
+        type: file
+      - description: game_url
+        in: formData
+        name: game_url
+        type: string
+      - description: play_count
+        in: formData
+        name: play_count
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Game'
+      tags:
+      - Games
+  /game/category/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a game by category id
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Game'
+      tags:
+      - Games
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Get all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/entities.User'
+              type: array
+            type: array
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: Create user request
+        in: body
+        name: UserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.User'
+      tags:
+      - Users
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Update a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: {\"message\": \"User deleted successfully\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Get user by id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.User'
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update user request
+        in: body
+        name: UserUpdateRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.User'
+      tags:
+      - Users
+  /user/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Forgot Password
+      parameters:
+      - description: Forgot password Request
+        in: body
+        name: UserEmailRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: {\"message\": \"The password reset email has been
+            sent.\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - Users
+  /user/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset Password
+      parameters:
+      - description: Reset password Request
+        in: body
+        name: UserResetPasswordRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Example: {\"message\": \"Password reset successful.\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - Users
+swagger: "2.0"

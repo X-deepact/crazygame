@@ -1,0 +1,189 @@
+package repositories
+
+import (
+	"strconv"
+	"testing"
+
+	"crazygames.io/entities"
+)
+
+func createGame(game *entities.Game, categoryId string) (*entities.Game, error) {
+	err := gameRepository.Create(game, categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	return game, nil
+}
+
+func TestGameRepository_Create_Success(t *testing.T) {
+	db.Exec("DELETE FROM games")
+	db.Exec("DELETE FROM categories")
+
+	category := &entities.Category{CategoryName: "Action"}
+	categoryRepository.Create(category)
+
+	game := &entities.Game{GameTitle: "Test Game", GameURL: "http://testgame.com"}
+	err := gameRepository.Create(game, strconv.Itoa(int(category.ID)))
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+
+	if game.ID == 0 {
+		t.Errorf("expected game to have an ID, got 0")
+	}
+
+	if len(game.Category) != 1 || game.Category[0].ID != category.ID {
+		t.Errorf("expected game to be associated with category, got %v", game.Category)
+	}
+}
+
+func TestGameRepository_GetByID_Success(t *testing.T) {
+	db.Exec("DELETE FROM games")
+	db.Exec("DELETE FROM categories")
+
+	category := &entities.Category{CategoryName: "Adventure"}
+	categoryRepository.Create(category)
+
+	game := &entities.Game{GameTitle: "Adventure Game", GameURL: "http://adventuregame.com"}
+	gameRepository.Create(game, strconv.Itoa(int(category.ID)))
+
+	fetchedGame, err := gameRepository.GetByID(game.ID)
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+
+	if fetchedGame.ID != game.ID {
+		t.Errorf("expected game ID %d, got %d", game.ID, fetchedGame.ID)
+	}
+}
+
+func TestGameRepository_Update_Success(t *testing.T) {
+	db.Exec("DELETE FROM games")
+	db.Exec("DELETE FROM categories")
+
+	category1 := &entities.Category{CategoryName: "Old Category"}
+	category2 := &entities.Category{CategoryName: "New Category"}
+	categoryRepository.Create(category1)
+	categoryRepository.Create(category2)
+
+	game := &entities.Game{GameTitle: "Old Game", GameURL: "http://oldgame.com"}
+	gameRepository.Create(game, strconv.Itoa(int(category1.ID)))
+
+	game.GameTitle = "Updated Game"
+	updatedGame, err := gameRepository.Update(game, strconv.Itoa(int(category2.ID)))
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+
+	if updatedGame.GameTitle != "Updated Game" {
+		t.Errorf("expected updated game title, got %s", updatedGame.GameTitle)
+	}
+
+	if len(updatedGame.Category) != 1 || updatedGame.Category[0].ID != category2.ID {
+		t.Errorf("expected game to be associated with new category, got %v", updatedGame.Category)
+	}
+}
+
+func TestGameRepository_Delete_Success(t *testing.T) {
+	db.Exec("DELETE FROM games")
+	db.Exec("DELETE FROM categories")
+
+	category := &entities.Category{CategoryName: "Delete Test"}
+	err := categoryRepository.Create(category)
+	if err != nil {
+		t.Fatalf("failed to create category: %v", err)
+	}
+
+	game := &entities.Game{GameTitle: "Game to Delete", GameURL: "http://deletegame.com"}
+	err = gameRepository.Create(game, strconv.Itoa(int(category.ID)))
+	if err != nil {
+		t.Fatalf("failed to create game: %v", err)
+	}
+
+	// Fetch the game to ensure it exists
+	fetchedGame, err := gameRepository.GetByID(game.ID)
+	if err != nil {
+		t.Fatalf("failed to fetch game before deletion: %v", err)
+	}
+	t.Logf("fetched game: %+v", fetchedGame)
+
+	// Delete the game
+	err = gameRepository.Delete(game.ID)
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+
+	// Try to fetch the game again to ensure it is deleted
+	_, err = gameRepository.GetByID(game.ID)
+	if err == nil {
+		t.Errorf("expected error for deleted game, got nil")
+	}
+}
+
+func TestGameRepository_ListByCategory_Success(t *testing.T) {
+	db.Exec("DELETE FROM games")
+	db.Exec("DELETE FROM categories")
+
+	category := &entities.Category{CategoryName: "Category Testing"}
+	err := categoryRepository.Create(category)
+	if err != nil {
+		t.Fatalf("failed to create category: %v", err)
+	}
+
+	game1 := &entities.Game{GameTitle: "Game 1", GameURL: "http://game1.com"}
+	game2 := &entities.Game{GameTitle: "Game 2", GameURL: "http://game2.com"}
+	err = gameRepository.Create(game1, strconv.Itoa(int(category.ID)))
+	if err != nil {
+		t.Fatalf("failed to create game1: %v", err)
+	}
+	err = gameRepository.Create(game2, strconv.Itoa(int(category.ID)))
+	if err != nil {
+		t.Fatalf("failed to create game2: %v", err)
+	}
+
+	games, err := gameRepository.ListByCategory(category.ID)
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+
+	if len(games) != 2 {
+		t.Errorf("expected 2 games, got %d", len(games))
+	}
+}
+
+func TestGameRepository_GetAll_Success(t *testing.T) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+	db.Exec("TRUNCATE TABLE reviews")
+	db.Exec("TRUNCATE TABLE favorites")
+	db.Exec("TRUNCATE TABLE game_categories")
+	db.Exec("TRUNCATE TABLE games")
+	db.Exec("TRUNCATE TABLE categories")
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
+
+	category := &entities.Category{CategoryName: "All Games Test"}
+	err := categoryRepository.Create(category)
+	if err != nil {
+		t.Fatalf("failed to create category: %v", err)
+	}
+
+	game1 := &entities.Game{GameTitle: "Game 1", GameURL: "http://game1.com"}
+	game2 := &entities.Game{GameTitle: "Game 2", GameURL: "http://game2.com"}
+	err = gameRepository.Create(game1, strconv.Itoa(int(category.ID)))
+	if err != nil {
+		t.Fatalf("failed to create game1: %v", err)
+	}
+	err = gameRepository.Create(game2, strconv.Itoa(int(category.ID)))
+	if err != nil {
+		t.Fatalf("failed to create game2: %v", err)
+	}
+
+	games, err := gameRepository.GetAll()
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+
+	if len(games) != 2 {
+		t.Errorf("expected 2 games, got %d", len(games))
+	}
+}

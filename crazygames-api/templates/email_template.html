@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Reset</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #0f0a1a;
+        padding: 40px 0;
+        text-align: center;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: #20124d;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        color: #ffffff;
+      }
+      .logo {
+        text-align: center;
+      }
+      .logo img {
+        width: 120px;
+        margin-bottom: 20px;
+      }
+      .divBox {
+        background: #47318d;
+        text-align: center;
+        padding: 10px 5px;
+      }
+      .divBox .title {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      .divBox .text {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+      .divBox .button {
+        background-color: #7950f2;
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 50px;
+        display: inline-block;
+      }
+      .footer {
+        text-align: center;
+        font-size: 14px;
+        margin-top: 20px;
+        color: #aaaaaa;
+      }
+      .footer a {
+        color: #7950f2;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <img src="" alt="Company Logo" />
+      </div>
+      <div class="divBox">
+        <h2 class="title">Password Reset</h2>
+        <p class="text">
+          A request has been received to change the password of your CrazyGames
+          account.
+        </p>
+        <p class="text">
+          If you didn't ask to reset your password, you can safely ignore this
+          email.
+        </p>
+        <a class="button" href="{{.ResetLink}}">Reset Password</a>
+        <p class="footer">
+          Thank you,<br />
+          Your CrazyGames Team
+        </p>
+      </div>
+      <p class="footer">
+        Need help? Visit <a href="">crazygames.com/contact</a>
+      </p>
+    </div>
+  </body>
+</html>

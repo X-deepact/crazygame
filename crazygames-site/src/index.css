@@ -1,0 +1,98 @@
+@layer base {
+  /* inter-regular - latin */
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: optional;
+    src: url('/fonts/inter-regular-webfont.woff2') format('woff2'),
+      url('/fonts/inter-regular-webfont.woff') format('woff');
+  }
+
+  /* inter-500 - latin */
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: optional;
+    src: url('/fonts/inter-medium-webfont.woff2') format('woff2'),
+      url('/fonts/inter-medium-webfont.woff') format('woff');
+  }
+
+  /* inter-700 - latin */
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: optional;
+    src: url('/fonts/inter-bold-webfont.woff2') format('woff2'),
+      url('/fonts/inter-bold-webfont.woff') format('woff');
+  }
+
+  /* Write your own custom base styles here */
+  h1 {
+    @apply text-3xl font-bold md:text-5xl font-primary;
+  }
+
+  h2 {
+    @apply text-2xl font-bold md:text-4xl font-primary;
+  }
+
+  h3 {
+    @apply text-xl font-bold md:text-3xl font-primary;
+  }
+
+  h4 {
+    @apply text-lg font-bold font-primary;
+  }
+
+  body {
+    @apply text-sm font-primary md:text-base;
+  }
+
+  .layout {
+    /* 750px */
+    /* max-width: 43.75rem; */
+
+    /* 1100px */
+    max-width: 68.75rem;
+    @apply w-11/12 mx-auto;
+  }
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+.scrollbar {
+  overflow-y: auto;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #4B5563 #1F2937; /* Thumb color and track color for Firefox */
+}
+
+/* For Webkit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #1F2937; /* Background of the track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #4B5563; /* Thumb color */
+  border-radius: 4px; /* Rounded corners for the thumb */
+  border: 2px solid #1F2937; /* Optional: Space between thumb and track */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #6B7280; /* Change thumb color on hover */
+}
+
+.slick-slide {
+  width: auto!important;
+}

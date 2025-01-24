@@ -91,3 +91,56 @@ For open source projects, say how it is licensed.
 
 ## Project status
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+## Setup Swagger Docs
+- install swag cli via [installation guide](https://github.com/swaggo/swag)
+- generate swagger via cli ```swag init --parseDependency```
+- generate via script in Makefile ```make docs```
+-  [Documentation](https://github.com/swaggo/swag) about how to write swagger docs
+- E.g. Protected route with bearer token
+```go
+// GetAll
+// @Description Get all users
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Success 200 {array} []entities.User
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security Bearer
+// @Router /user [get]
+```
+- E.g. Public Route
+```go
+// GetAll
+// @Description Get all users
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Success 200 {array} []entities.User
+// @Router /user [get]
+```
+- E.g. Request body sample
+```go
+// @Param requestName body entities.UserRequest true "Create user request"
+```
+- E.g. Request Param sample
+```go
+// @Param paramName path uint true "Ads ID"
+```
+- E.g. FormData request sample
+```go
+// @Param image formData file true "Upload Image"
+// @Param position formData uint true "Position"
+// @Param game_id formData uint true "Game ID"
+// @Accept multipart/form-data
+```
+- ### NOTE
+  - all request params are in order like
+  - @Param => declaration
+  - param name => can be anything you want
+  - param type => body, path, formData, query, header
+  - data type => all prmitive types(string, int, etc...) and custom types
+  - required/optional => indicates if the parameter is mandatory (true) or optional (false)
+  - description => describe the purpose of param (string)
